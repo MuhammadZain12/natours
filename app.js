@@ -5,11 +5,17 @@ const app = express();
 
 app.use(express.json());
 
+app.use((req,res,next)=>{
+  req.timeRequested=new Date().toISOString()
+  next()
+})
+
 const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours.json'));
 
 const getAllTours = (req, res) => {
   res.json({
     status: 'success',
+    timeRequested:req.timeRequested,
     results: tours.length,
     data: {
       tours,
@@ -50,6 +56,7 @@ const getSingleTour = (req, res) => {
   });
 };
 
+// Commented Because We Now Have More Simplified Way Below Them
 // app.get('/api/v1/tours', getAllTours);
 
 // app.post('/api/v1/tours', addNewTour);
