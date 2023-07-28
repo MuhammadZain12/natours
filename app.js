@@ -5,17 +5,18 @@ const app = express();
 
 app.use(express.json());
 
-app.use((req,res,next)=>{
-  req.timeRequested=new Date().toISOString()
-  next()
-})
+// app.use((req, res, next) => {
+//   req.timeRequested = new Date().toISOString();
+//   console.log('hi')
+//   next();
+// });
 
 const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours.json'));
 
 const getAllTours = (req, res) => {
   res.json({
     status: 'success',
-    timeRequested:req.timeRequested,
+    timeRequested: req.timeRequested,
     results: tours.length,
     data: {
       tours,
@@ -63,8 +64,13 @@ const getSingleTour = (req, res) => {
 
 // app.get('/api/v1/tours/:id', getSingleTour);
 
-app.route('/api/v1/tours').get(getAllTours).post(addNewTour);
-app.route('/api/v1/tours/:id').get(getSingleTour)
+const tourRouter = express.Router();
+app.use('/api/v1/tours', tourRouter);
+tourRouter.route('/').get(getAllTours).post(addNewTour);
+tourRouter.route('/:id').get(getSingleTour);
+
+// app.route('/api/v1/tours').get(getAllTours).post(addNewTour);
+// app.route('/api/v1/tours/:id').get(getSingleTour)
 
 const port = 8000;
 app.listen(port, () => {
