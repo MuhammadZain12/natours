@@ -1,0 +1,1 @@
+{"version":"1.0.0","name":"natours","dependencies":{"dotenv":{"version":"16.3.1"},"eslint":{"version":"5.16.0"},"express":{"version":"4.18.2"},"mongoose":{"version":"7.4.1"}}}
