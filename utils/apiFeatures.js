@@ -15,7 +15,6 @@ class APIfeatures {
       (match) => `$${match}`
     );
     this.query = this.query.find(JSON.parse(queryString));
-    console.log(this);
     return this;
   }
 
@@ -26,7 +25,6 @@ class APIfeatures {
     } else {
       this.query = this.query.sort('-createdAt');
     }
-    console.log(this);
     return this;
   }
 
@@ -37,7 +35,6 @@ class APIfeatures {
     } else {
       this.query = this.query.select('-__v');
     }
-    console.log(this);
     return this;
   }
 
@@ -46,7 +43,6 @@ class APIfeatures {
     const limit = this.queryStr.limit * 1 || 100;
     const skip = (page - 1) * limit;
     this.query.skip(skip).limit(limit);
-    console.log(this);
     return this;
   }
 }

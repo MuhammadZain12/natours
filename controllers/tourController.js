@@ -1,5 +1,5 @@
 const Tour = require('./../models/tourModel');
-const APIfeatures=require('./../utils/apiFeatures')
+const APIfeatures = require('./../utils/apiFeatures');
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
@@ -7,8 +7,6 @@ exports.aliasTopTours = (req, res, next) => {
   req.query.fields = 'name price ratingsAverage ratingsQuantity';
   next();
 };
-
-
 
 exports.getAllTours = async (req, res) => {
   try {
@@ -95,6 +93,42 @@ exports.daeleteTour = async (req, res) => {
       status: 'success',
       data: {
         tour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+exports.tourStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      { $match: { ratingsAverage: { $gte: 4.5 } } },
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty' },
+          totalTours: { $sum: 1 },
+          avgRating: { $avg: '$ratingsAverage' },
+          totalRatings: { $sum: '$ratingsQuantity' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+      {
+        $sort: { avgPrice: 1 },
+      },
+      // {
+      //   $match: { _id: { $ne: 'EASY' } },
+      // },
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        stats,
       },
     });
   } catch (err) {
