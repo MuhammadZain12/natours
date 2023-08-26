@@ -61,10 +61,21 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-// tourSchema.post('save', function (next) {
-//   console.log('Post middleware called');
+// tourSchema.post('save', function (doc,next) {
+//   console.log('Post middleware called your saved document : '+doc);
 //   next();
 // });
+
+tourSchema.pre(/^find/,function(next){
+  this.find({secreteTour:{$ne:true}})
+  next()
+})
+
+// tourSchema.post(/^find/,function(docs, next){
+//   // Here Docs Are The Documents That We Received After Query
+//   console.log(docs)
+//   next()
+// })
 
 const Tour = mongoose.model('Tour', tourSchema);
 
