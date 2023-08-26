@@ -10,6 +10,7 @@ const tourSchema = mongoose.Schema(
     },
     slug: String,
     duration: { type: Number, required: [true, 'A tour must have a duration'] },
+    secreteTour: { type: Boolean, default: false },
     maxGroupSize: {
       type: Number,
       required: [true, 'A tour must have a group size'],
@@ -49,6 +50,7 @@ const tourSchema = mongoose.Schema(
   }
 );
 
+//Virtual Fields
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
@@ -66,16 +68,24 @@ tourSchema.pre('save', function (next) {
 //   next();
 // });
 
-tourSchema.pre(/^find/,function(next){
-  this.find({secreteTour:{$ne:true}})
-  next()
-})
+//Query middleware
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secreteTour: { $ne: true } });
+  next();
+});
 
 // tourSchema.post(/^find/,function(docs, next){
 //   // Here Docs Are The Documents That We Received After Query
 //   console.log(docs)
 //   next()
 // })
+
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secreteTour: { $ne: true } } });
+  next();
+});
+
+//post aggregate are also possible but they are quite rare in use
 
 const Tour = mongoose.model('Tour', tourSchema);
 
