@@ -7,6 +7,14 @@ const tourSchema = mongoose.Schema(
       type: String,
       required: [true, 'The name field is required'],
       unique: true,
+      maxlength: [
+        40,
+        'A tour name must have less than or equal to 40 characters',
+      ],
+      minlength: [
+        10,
+        'A tour name must have less than or equal to 40 characters',
+      ],
     },
     slug: String,
     duration: { type: Number, required: [true, 'A tour must have a duration'] },
@@ -18,11 +26,28 @@ const tourSchema = mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'A tour must have a difficulty'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty is either easy,medium or difficult',
+      },
     },
-    ratingsAverage: { type: Number, default: 4.5 },
+    ratingsAverage: {
+      type: Number,
+      default: 4.5,
+      max: [5.0, 'rating must be below 5.0'],
+      min: [1.0, 'rating must be above 1.0'],
+    },
     ratingsQuantity: { type: Number, default: 0 },
     price: { type: Number, required: [true, 'A tour must have a price'] },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (val) {
+          return val < this.price;
+        },
+        message: 'Discount Price ({VALUE}) Should Be Less Than Actual Price',
+      },
+    },
     summery: {
       type: String,
       trim: true,
@@ -57,7 +82,7 @@ tourSchema.virtual('durationWeeks').get(function () {
 
 // Just Like middlewares in express we also have middleware in mongo
 // In Mongo Our middleware can be applied on documents and event is used as hook after or before which  we are to use that middleware
-
+// only run before save() and create() not before update()
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
