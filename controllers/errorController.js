@@ -1,7 +1,14 @@
+// const lodash=require('lodash')
 const AppError = require('../utils/appError');
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
+  return new AppError(message, 400);
+};
+
+const handleDuplicateValueErrorDB = (err) => {
+  const field = err.message.match(/(["'])(?:\\.|[^\\])*?\1/);
+  const message = `Duplicate field value ${field[0]} Please use another value`;
   return new AppError(message, 400);
 };
 
@@ -36,9 +43,10 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(res, err);
   } else if (process.env.NODE_ENV === 'production') {
-    let error = { ...err };
+    let error;
     let { name } = err;
-    if (name === 'CastError') error = handleCastErrorDB(error);
+    if (name === 'CastError') error = handleCastErrorDB(err);
+    if (err.code === 11000) error = handleDuplicateValueErrorDB(err);
     sendErrorProd(res, error);
   }
 };
