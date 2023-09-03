@@ -12,6 +12,13 @@ console.log('Connecting To Database');
 mongoose.connect(DB).then(() => console.log('Database connected'));
 
 const port = 8000;
-app.listen(port, () => {
+server = app.listen(port, () => {
   console.log(`App Running on port ${port}`);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.log(err.message);
+  server.close(() => {
+    process.exit(1);
+  });
 });
