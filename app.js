@@ -1,6 +1,7 @@
 const fs = require('fs');
 const express = require('express');
 const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
 const gloablErrorHandler = require('./controllers/errorController');
 
@@ -24,6 +25,7 @@ app.use(express.json());
 // app.get('/api/v1/tours/:id', getSingleTour);
 
 app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
 // app.route('/api/v1/tours').get(getAllTours).post(addNewTour);
 // app.route('/api/v1/tours/:id').get(getSingleTour)
