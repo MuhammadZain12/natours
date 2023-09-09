@@ -15,7 +15,12 @@ const handleDuplicateValueErrorDB = (err) => {
 const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((item) => item.message);
   const message = `Validation Error : ${errors.join('. ')}`;
-  return new AppError(message,400)
+  return new AppError(message, 400);
+};
+
+const handleJsonWebTokenError = (err) => {
+  message = `Invalid Token! Please login again`;
+  return new AppError(message, 401);
 };
 
 const sendErrorDev = (res, err) => {
@@ -49,10 +54,11 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(res, err);
   } else if (process.env.NODE_ENV === 'production') {
-    let error={...err};
+    let error = { ...err };
     if (err.name === 'CastError') error = handleCastErrorDB(err);
     if (err.code === 11000) error = handleDuplicateValueErrorDB(err);
     if (err.name === 'ValidationError') error = handleValidationErrorDB(err);
+    if (err.name === 'JsonWebTokenError') error = handleJsonWebTokenError(err);
     sendErrorProd(res, error);
   }
 };
