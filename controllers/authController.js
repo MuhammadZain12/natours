@@ -16,6 +16,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    passwordChangedAt: req.body.passwordChangedAt,
   };
   const newUser = await User.create(newUserData);
 
@@ -71,6 +72,21 @@ exports.protect = catchAsync(async (req, res, next) => {
     process.env.JWT_SECRETE
   );
 
-  
+  //Check If User still exist
+  const freshUser = await User.findById(decoded.id);
+  if (!freshUser) {
+    return next(
+      new AppError(`The user belonging to this token no longer exists!`, 401)
+    );
+  }
+
+  //Check wether password password changed after issuance of JWT
+  console.log(freshUser.changedPasswordAfter(decoded.iat));
+
+  if (freshUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError(`User recently changed password! PLease login again`, 401)
+    );
+  }
   next();
 });
