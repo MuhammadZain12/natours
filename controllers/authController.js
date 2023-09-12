@@ -71,5 +71,6 @@ exports.protect = catchAsync(async (req, res, next) => {
     process.env.JWT_SECRETE
   );
 
+  
   next();
 });
